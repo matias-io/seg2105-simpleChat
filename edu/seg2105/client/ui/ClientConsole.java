@@ -92,7 +92,7 @@ public class ClientConsole implements ChatIF
     catch (Exception ex) 
     {
       System.out.println
-        ("Unexpected error while reading from console!");
+        ("Unexpected error while reading from console!" + ex.toString());
     }
   }
 
@@ -118,7 +118,7 @@ public class ClientConsole implements ChatIF
   public static void main(String[] args) 
   {
     String host = "";
-
+    int port = 0;
 
     try
     {
@@ -127,6 +127,15 @@ public class ClientConsole implements ChatIF
     catch(ArrayIndexOutOfBoundsException e)
     {
       host = "localhost";
+    }
+    
+    try
+    {
+      port = Integer.parseInt(args[1]);
+    }
+    catch(ArrayIndexOutOfBoundsException e)
+    {
+      port = DEFAULT_PORT;
     }
     ClientConsole chat= new ClientConsole(host, DEFAULT_PORT);
     chat.accept();  //Wait for console data
