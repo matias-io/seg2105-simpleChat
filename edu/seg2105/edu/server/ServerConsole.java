@@ -120,10 +120,32 @@ public class ServerConsole implements ChatIF{
 		    	        	}
 
 	    	        } else if (commandName.equals("START")) {
-	    	        	if (!isActive) {
 	    	            display("Command: Server starting to listen for new clients...");
+	    	        	if (!isActive) {
+		    	            display("...");
+
+	    	                try {
+	  
+	    	            	    try 
+	    	            	    {
+	    	            	      server= new EchoServer(port, this);
+	    	            	      server.listen(); //Start listening for connections
+	    	            	      isActive = true;
+	    	            	    } 
+	    	            	    catch(Exception exception) 
+	    	            	    {
+	    	            	      System.out.println("Error: Can't setup connection!"
+	    	            	                + " Terminating client.");
+	    	            	      System.exit(1);
+	    	            	    }
+	    	            	    
+	    	            	    // Create scanner object to read from console
+	    	            	    fromConsole = new Scanner(System.in); 
+
+	    	                } catch (Exception e) {
+	    	                    display("Something went wrong connecting!.");
+	    	                } 
 	    	        	} else {
-	    	        		display("Command: Server starting to listen for new clients.");
 	    	        		display("Cannot start and already running server!");
 	    	        		
 	    	        	}

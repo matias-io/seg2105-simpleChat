@@ -173,9 +173,6 @@ public class ClientConsole implements ChatIF
 	    	        		display("Cannot login  while already logged in!");
 	    	        		
 	    	        	}
-    	        	display("Command: Terminating server listening");
-    	        	client.closeConnection();
-    	        	display("Stopped listening for new client connections");
     	        	
     	        } else if (commandName.equals("GETHOST")) {
     	        	display("Command: Retrieving current client host...");
