@@ -59,7 +59,42 @@ public class EchoServer extends AbstractServer
     (Object msg, ConnectionToClient client)
   {
 	  serverUI.display("Message received: " + msg + " from " + client);
-    this.sendToAllClients(msg);
+    
+	  
+	  if(client.getInfo("login") == null) {
+		  String[]  msgs = new String[2];
+		  try {
+			msgs = msg.toString().split(" ");
+			
+		  if(msgs[0].equals("#login")) {
+			  client.setInfo("login", msgs[1]);
+		  } else {
+			  serverUI.display("New Client: Wrong entry command");
+			  client.close();
+		  }
+			
+		  }catch(IOException i) {
+			  serverUI.display("Critical Error");
+			  System.exit(1);
+		  }
+		  catch(Exception e) {
+			  serverUI.display("New Client: Failed to login a client");
+		  }
+
+	  } else {
+		  if (msg.toString().startsWith("#login")) {
+		 try{
+			 serverUI.display("New Client: Error - Attempted login while logged in ....");
+			  client.close();
+		  }catch(IOException i) {
+			  serverUI.display("Critical Error");
+			  System.exit(1);
+		  }
+		  }
+		  this.sendToAllClients(client.getInfo("login") + " " + msg);
+	  }
+	  
+	  
   }
     
   /**
@@ -76,6 +111,7 @@ public class EchoServer extends AbstractServer
    * This method overrides the one in the superclass.  Called
    * when the server stops listening for connections.
    */
+  protected void serverStopped()
   {
 	  serverUI.display
       ("Server has stopped listening for connections.");
@@ -99,6 +135,7 @@ public class EchoServer extends AbstractServer
   //Client Connection methods ***************************************************
   
   protected void clientConnected(ConnectionToClient client) {
+	  
 	  serverUI.display("Client Status: New Client has connected!");
   }
   

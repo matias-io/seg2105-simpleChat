@@ -46,7 +46,7 @@ public class ServerConsole implements ChatIF{
 	    catch(Exception exception) 
 	    {
 	      System.out.println("Error: Can't setup connection!"
-	                + " Terminating client.");
+	                + " Terminating client." + exception.getMessage());
 	      System.exit(1);
 	    }
 	    
@@ -224,7 +224,7 @@ public class ServerConsole implements ChatIF{
 	   *          if no argument is entered.
 	   */
 	public static void main(String[] args) {
-	    int port = 0; //Port to listen on
+	    int port; //Port to listen on
 
 	    try
 	    {
