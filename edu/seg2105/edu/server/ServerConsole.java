@@ -46,7 +46,7 @@ public class ServerConsole implements ChatIF{
 	    catch(Exception exception) 
 	    {
 	      System.out.println("Error: Can't setup connection!"
-	                + " Terminating client." + exception.getMessage());
+	                + " Terminating server client." + exception.getMessage());
 	      System.exit(1);
 	    }
 	    
@@ -89,13 +89,13 @@ public class ServerConsole implements ChatIF{
 	    	        } else if (commandName.equals("STOP")) {
 	    	        	display("Command: Terminating server listening");
 	    	        	server.stopListening();
-	    	        	display("Stopped listening for new client connections");
+	    	        	display("Server has stopped listening for connections.");
 	    	        	
 	    	        } else if (commandName.equals("CLOSE")) {
 	    	        	display("Command: Server closing... disconnecting all clients and stopping listening...");
 	    	        	server.close();
 	    	        	isActive = false;
-	    	        	display("Closed server");
+	    	        	display("The server has shut down.");
 	    	        	
 	    	        } else if (commandName.startsWith("SETPORT")) {
 	    	        	
@@ -157,7 +157,7 @@ public class ServerConsole implements ChatIF{
 	    	        }
 	    	        
 	        	} else {
-	        		server.handleMessageFromClientUI("SERVER MSG> " + message);
+	        		server.handleMessageFromClientUI("SERVER MESSAGE> " + message);
 	        	}
 	        }
 
@@ -210,8 +210,8 @@ public class ServerConsole implements ChatIF{
 	
 	@Override
 	public void display(String message) {
-	    System.out.println("$ > " + message);
-		
+//	    System.out.println("$ > " + message);
+		System.out.println(message);
 	}
 	
 	  //Class methods ***************************************************

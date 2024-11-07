@@ -69,8 +69,7 @@ public class ClientConsole implements ChatIF
     } 
     catch(IOException exception) 
     {
-      System.out.println("Error: Can't setup connection!"
-                + " Terminating client.");
+      System.out.println("ERROR - Can't setup connection! Terminating client.");
       System.exit(1);
     }
     
@@ -107,16 +106,20 @@ public class ClientConsole implements ChatIF
     	        
     	     // Create commands
     	        if (commandName.equals("QUIT")) {
-    	        	display("Command: Terminating the server");
-    	        	client.closeConnection();
+    	        	display("Command: Terminating the client");
     	        	display("Goodbye!");
-    	        	System.exit(0);
+    	        	client.quit();
     	        	
     	        } else if (commandName.equals("LOGOFF")) {
-    	        	display("Command: Terminating server listening");
-    	        	client.closeConnection();
+    	        	display("Command: Disconnecting from Server");
+    	        	loggedIn = false;
+    	        	try {
+    	        		client.closeConnection();
+    	        	} catch(IOException e){
+    	        		display(e.getMessage());
+    	        	}
     	        	display("Disconnected from server");
-    	        	
+    	        	 
     	        } else if (commandName.equals("SETHOST")) {
     	        	
     	        	if (!loggedIn) {
@@ -257,7 +260,8 @@ public class ClientConsole implements ChatIF
    */
   public void display(String message) 
   {
-    System.out.println("> " + message);
+//    System.out.println("> " + message);
+    System.out.println(message);
   }
 
   
@@ -265,7 +269,7 @@ public class ClientConsole implements ChatIF
   
   /**
    * This method is responsible for the creation of the Client UI.
-   *
+   *x
    * @param args[0] The host to connect to.
    */
   public static void main(String[] args) 
@@ -276,7 +280,7 @@ public class ClientConsole implements ChatIF
 	  try {
 		  login = args[0];
 	  }catch(ArrayIndexOutOfBoundsException e) {
-		  System.out.println("login ID parameter mandatory! Bye!");
+		  System.out.println("ERROR - No login ID specified.  Connection aborted.");
 		  System.exit(0);
 	  }
 	  

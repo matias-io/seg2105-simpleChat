@@ -93,7 +93,7 @@ public class ChatClient extends AbstractClient
     {
       closeConnection();
     }
-    catch(IOException e) {}
+    catch(IOException e) { }
     System.exit(0);
   }
 //Server Closing  methods ************************************************
@@ -101,7 +101,6 @@ public class ChatClient extends AbstractClient
   protected void connectionClosed() {
 	  	clientUI.display("SYSTEM: Server has shut down, closing client program...");
 	  	
-	  	System.exit(0);
   }
   
   @Override

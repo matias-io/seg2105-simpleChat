@@ -58,7 +58,13 @@ public class EchoServer extends AbstractServer
   public void handleMessageFromClient
     (Object msg, ConnectionToClient client)
   {
-	  serverUI.display("Message received: " + msg + " from " + client);
+	  if(msg.toString().charAt(0) == '>') {
+		  serverUI.display("Message received: " + msg.toString().substring(2)+ " from " + client.getInfo("login"));
+	  }
+	  else {
+		  
+		  serverUI.display("Message received: " + msg + " from " + client.getInfo("login"));
+	  }
     
 	  
 	  if(client.getInfo("login") == null) {
@@ -68,6 +74,9 @@ public class EchoServer extends AbstractServer
 			
 		  if(msgs[0].equals("#login")) {
 			  client.setInfo("login", msgs[1]);
+			  this.sendToAllClients(client.getInfo("login") + " has logged on");
+			  serverUI.display(client.getInfo("login") + " has logged on");
+
 		  } else {
 			  serverUI.display("New Client: Wrong entry command");
 			  client.close();
@@ -91,7 +100,7 @@ public class EchoServer extends AbstractServer
 			  System.exit(1);
 		  }
 		  }
-		  this.sendToAllClients(client.getInfo("login") + " " + msg);
+		  this.sendToAllClients(client.getInfo("login") + msg.toString());
 	  }
 	  
 	  
@@ -104,7 +113,7 @@ public class EchoServer extends AbstractServer
   protected void serverStarted()
   {
 	  serverUI.display
-      ("Server listening for connections on port " + getPort());
+      ("Server listening for clients on port " + getPort());
   }
   
   /**
@@ -123,6 +132,7 @@ public class EchoServer extends AbstractServer
 	    try
 	    {
 	      sendToAllClients(message);
+	      serverUI.display(message);
 	    }
 	    catch(Exception e)
 	    {
@@ -136,15 +146,15 @@ public class EchoServer extends AbstractServer
   
   protected void clientConnected(ConnectionToClient client) {
 	  
-	  serverUI.display("Client Status: New Client has connected!");
+	  serverUI.display("A new client has connected to the server.");
   }
   
-	synchronized protected void clientDisconnected() {
+	synchronized protected void clientDisconnected(ConnectionToClient client) {
 		serverUI.display("Client Status: A Client has disconnected");
 	}
 	
 	synchronized protected void clientException(	ConnectionToClient client, Throwable exception) {
-		serverUI.display("Client Status: A Client stopped responding");
+		serverUI.display("Client Status: A Client stopped responding" + exception.toString());
 	}
 }
 //End of EchoServer class
