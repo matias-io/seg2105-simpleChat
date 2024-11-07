@@ -1,4 +1,6 @@
-PS C:\Users\Reima\Downloads\OCSF\src> javac ocsf/server/*.java
+//ocsf compilation
+
+{OCSF Framework Folder}\src> javac ocsf/server/*.java
 ocsf\server\ConnectionToClient.java:254: warning: [removal] finalize() in Object has been deprecated and marked for removal
         protected void finalize() {
                        ^
@@ -6,16 +8,20 @@ ocsf\server\ConnectionToClient.java:254: warning: [removal] finalize() in Object
 
 
 
-PS C:\Users\Reima\Downloads\simpleChat>
-java -cp ".;C:\Users\Reima\Downloads\OCSF\src" edu.seg2105.edu.server.backend.EchoServer
-javac -cp "C:\Users\Reima\Downloads\OCSF\src" edu/seg2105/edu/server/backend/EchoServer.java
+//Server
+
+{simpleChat Root Folder}>
+java -cp ".;{OCSF Framework Folder}\src" edu.seg2105.edu.server.backend.EchoServer
+javac -cp "{OCSF Framework Folder}\src" edu/seg2105/edu/server/backend/EchoServer.java
 
 
 
+//port networking
+{root user}> netstat -ano | findstr :5555
 
-PS C:\Users\Reima> netstat -ano | findstr :5555
 
 
-PS C:\Users\Reima\Downloads\simpleChat> 
-java -cp ".;C:\Users\Reima\Downloads\OCSF\src" edu.seg2105.client.ui.ClientConsole
-javac -cp ".;C:\Users\Reima\Downloads\OCSF\src" edu/seg2105/client/ui/ClientConsole.java
+//clients
+{simpleChat RootFolder> 
+java -cp ".;{OCSF Framework Folder}\src" edu.seg2105.client.ui.ClientConsole
+javac -cp ".;{OCSF Framework Folder}\src" edu/seg2105/client/ui/ClientConsole.java

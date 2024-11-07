@@ -5,6 +5,10 @@ package edu.seg2105.edu.server.backend;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.seg2105.client.common.ChatIF;
 import ocsf.server.*;
@@ -106,6 +110,104 @@ public class EchoServer extends AbstractServer
 	  
   }
     
+  
+  /**
+   * This method handles all data coming from the UI            
+   *
+   * @param message The message from the UI.    
+   */
+  public void handleMessageFromClientUI(String message) {
+	    try
+	    {
+	    	
+	    	if ( message != null && message.length() > 0) {
+	        	char firstChar = message.charAt(0);
+	        	
+	        	if(firstChar == '#') {
+	        		message = message.substring(1);
+	    	        List<String> input = this.tokenize(message);
+	    	        
+	    	        String commandName = input.remove(0).toUpperCase();
+	    	        
+	    	     // Create commands
+	    	        if (commandName.equals("QUIT")) {
+	    	        	serverUI.display("Command: Terminating the server");
+	    	        	try {
+	    	        		close();
+	    	        	}catch (Exception e) {}
+	    	        	serverUI.display("Goodbye!");
+	    	        	System.exit(0);
+	    	        	
+	    	        } else if (commandName.equals("STOP")) {
+	    	        	serverUI.display("Command: Terminating server listening");
+	    	        	stopListening();
+	    	        	
+	    	        } else if (commandName.equals("CLOSE")) {
+	    	        	serverUI.display("Command: Server closing... disconnecting all clients and stopping listening...");
+	    	        	try {
+	    	        		close();
+	    	        	}catch (Exception e) {}
+	    	        	serverUI.display("The server has shut down.");
+	    	        	
+	    	        } else if (commandName.startsWith("SETPORT")) {
+	    	        	
+	    	        	if (!isListening()) {
+	    	        		serverUI.display("Command: Setting New Port...");
+		    	        	if(input.size() < 1) {
+		    	        		serverUI.display("Invalid SETPORT command format. Usage: SETPORT <port>");
+		    	        	} else {
+		    	                try {
+		    	                    int portTmp = Integer.parseInt(input.remove(0));
+		    	                    setPort(portTmp);
+		    	                    serverUI.display("Setting server port to " + getPort());
+
+		    	                } catch (NumberFormatException e) {
+		    	                	serverUI.display("Invalid port number.");
+		    	                } 
+		    	        	}
+		    	        	} else {
+		    	        		serverUI.display("Command: Setting New Port...");
+		    	        		serverUI.display("Cannot Set a port while server is sitll active!");
+		    	        		
+		    	        	}
+
+	    	        } else if (commandName.equals("START")) {
+	    	        	serverUI.display("Command: Server starting to listen for new clients...");
+	    	        	if (!isListening()) {
+	    	        		serverUI.display("...");
+
+	    	                try {
+	    	                	listen();
+	    	                } catch (Exception e) {
+	    	                	serverUI.display("Something went wrong initiating server!.");
+	    	                } 
+	    	        	} else {
+	    	        		serverUI.display("Cannot start and already running server!");
+	    	        		
+	    	        	}
+	    	        } else if (commandName.equals("GETPORT")) {
+	    	        	serverUI.display("Command: Retrieving current server port...");
+	    	        	serverUI.display("Currently on port: " + getPort());
+	    	        } else {
+	    	        	serverUI.display("Unrecognized command.");
+	    	        }
+	    	        
+	        	} else {
+	        		sendToAllClients("SERVER MESSAGE> " + message);
+	      	      serverUI.display("SERVER MESSAGE> " + message);
+	        	}
+	        }
+	      	    }
+	    catch(Exception e)
+	    {
+	      serverUI.display
+	        ("Could not send message to clients.");
+	    }
+	  
+  }
+  
+  
+  //Server Status ***********************************
   /**
    * This method overrides the one in the superclass.  Called
    * when the server starts listening for connections.
@@ -127,34 +229,88 @@ public class EchoServer extends AbstractServer
   }
   
   
-  
-  public void handleMessageFromClientUI(String message) {
-	    try
-	    {
-	      sendToAllClients(message);
-	      serverUI.display(message);
-	    }
-	    catch(Exception e)
-	    {
-	      serverUI.display
-	        ("Could not send message to clients.");
-	    }
-	  
-  }
+  //Semantic Command Processing *****************************************
+
+	/**
+	 * Tokenizes a command string into a list of arguments.
+	 * 
+	 * 	@author UniversityManagementSystem
+	 * @param command the command string
+	 * @return a list of arguments
+	 */
+	private List<String> tokenize(String command) {
+		List<String> tokens = new ArrayList<>();
+		Pattern pattern = Pattern.compile("\"([^\"]*)\"|(\\S+)");
+		Matcher matcher = pattern.matcher(command);
+
+		while (matcher.find()) {
+			String token = matcher.group();
+			token = removeQuotes(token); // Remove quotes if they are added
+
+			tokens.add(token);
+		}
+
+		return tokens;
+	}
+	/**
+	 * Removes quotes from a string if they exist.
+	 *
+	 * @author UniversityManagementSystem 
+	 * @param str the string to process
+	 * @return the string without quotes
+	 */
+	private String removeQuotes(String str) {
+		if (str == null || str.length() < 2) {
+			return str;
+		}
+		if (str.startsWith("\"") && str.endsWith("\"")) {
+			return str.substring(1, str.length() - 1);
+		}
+		return str;
+	}
+	
 
   //Client Connection methods ***************************************************
   
+	/**
+	 * Hook method called each time a new client connection is
+	 * accepted. The default implementation does nothing.
+	 * @param client the connection connected to the client.
+	 */
+	@Override
   protected void clientConnected(ConnectionToClient client) {
 	  
 	  serverUI.display("A new client has connected to the server.");
   }
   
+	/**
+	 * Hook method called each time a client disconnects.
+	 * The default implementation does nothing. The method
+	 * may be overridden by subclasses but should remains synchronized.
+	 *
+	 * @param client the connection with the client.
+	 */
+	@Override
 	synchronized protected void clientDisconnected(ConnectionToClient client) {
-		serverUI.display("Client Status: A Client has disconnected");
+		  // OCSF framework does not properly implement this ?, 
+		  //That said, as by Javadoc, should be called when a client stops connection gracefully through closeConnection(). 
+		  // and exception thrown when done ungracefully such as termination
+		
+		serverUI.display(client.getInfo("login") + " has disconnected.");
 	}
 	
+	/**
+	 * Hook method called each time an exception is thrown in a
+	 * ConnectionToClient thread.
+	 * The method may be overridden by subclasses but should remains
+	 * synchronized.
+	 *
+	 * @param client the client that raised the exception.
+	 * @param Throwable the exception thrown.
+	 */
+	@Override
 	synchronized protected void clientException(	ConnectionToClient client, Throwable exception) {
-		serverUI.display("Client Status: A Client stopped responding" + exception.toString());
+		serverUI.display(client.getInfo("login") + " has disconnected abruptly.");
 	}
 }
 //End of EchoServer class

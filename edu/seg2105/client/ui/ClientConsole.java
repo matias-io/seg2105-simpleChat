@@ -4,11 +4,9 @@ package edu.seg2105.client.ui;
 // license found at www.lloseng.com 
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import edu.seg2105.client.backend.ChatClient;
 import edu.seg2105.client.common.*;
@@ -42,10 +40,7 @@ public class ClientConsole implements ChatIF
    */
   Scanner fromConsole; 
 
- boolean  loggedIn = false;
- int port;
- String host;
- String login;
+
   
   //Constructors ****************************************************
 
@@ -57,15 +52,9 @@ public class ClientConsole implements ChatIF
    */
   public ClientConsole(String login, String host, int port) 
   {
-	  
-	  this.host = host;
-	  this.port = port;
     try 
     {
-      client= new ChatClient(login, host, port, this);
-      client.handleMessageFromClientUI("#login " + login);
-      loggedIn = true;
-      
+      client= new ChatClient(login, host, port, this);      
     } 
     catch(IOException exception) 
     {
@@ -94,118 +83,8 @@ public class ClientConsole implements ChatIF
       while (true) 
       {
         message = fromConsole.nextLine();
-        
-        if ( message != null && message.length() > 0) {
-        	char firstChar = message.charAt(0);
-        	
-        	if(firstChar == '#') {
-        		message = message.substring(1);
-    	        List<String> input = this.tokenize(message);
-    	        
-    	        String commandName = input.remove(0).toUpperCase();
-    	        
-    	     // Create commands
-    	        if (commandName.equals("QUIT")) {
-    	        	display("Command: Terminating the client");
-    	        	display("Goodbye!");
-    	        	client.quit();
-    	        	
-    	        } else if (commandName.equals("LOGOFF")) {
-    	        	display("Command: Disconnecting from Server");
-    	        	loggedIn = false;
-    	        	try {
-    	        		client.closeConnection();
-    	        	} catch(IOException e){
-    	        		display(e.getMessage());
-    	        	}
-    	        	display("Disconnected from server");
-    	        	 
-    	        } else if (commandName.equals("SETHOST")) {
-    	        	
-    	        	if (!loggedIn) {
-	    	            display("Command: Setting New host...");
-	    	        	if(input.size() < 1) {
-	    	        		display("Invalid SETPORT command format. Usage: SETHOST <host>");
-	    	        	} else {
-	    	                    String  hostTmp = input.remove(0);
-	    	                    host = hostTmp;
-	    	                    display("Setting server port to " + host);
-	    	        	}
-    	        	} else {
-    	        		display("Command: Setting New Host...");
-    	        		display("Cannot Set a port while server is sitll active!");
-    	        		
-    	        	}
-    	        	
-    	        } else if (commandName.equals("SETPORT")) {
-    	        	
-    	        	if (!loggedIn) {
-	    	            display("Command: Setting New Port...");
-	    	        	if(input.size() < 1) {
-	    	        		display("Invalid SETPORT command format. Usage: SETPORT <port>");
-	    	        	} else {
-	    	                try {
-	    	                    int portTmp = Integer.parseInt(input.remove(0));
-	    	                    port = portTmp;
-	    	                    display("Setting server port to " + port);
-
-	    	                } catch (NumberFormatException e) {
-	    	                    display("Invalid port number.");
-	    	                } 
-	    	        	}
-	    	        	} else {
-	    	        		display("Command: Setting New Port...");
-	    	        		display("Cannot Set a port while server is sitll active!");
-	    	        		
-	    	        	}
-    	        	
-    	        } else if (commandName.equals("LOGIN")) {
-	        		display("Command: Logging in server...");
-    	        	if (!loggedIn) {
-	    	            display("...");
-	    	            try 
-	    	            {
-	    	              client= new ChatClient(login, host, port, this);
-	    	              client.handleMessageFromClientUI("#login " + login);
-	    	              loggedIn = true;
-	    	              
-	    	            } 
-	    	            catch(IOException exception) 
-	    	            {
-	    	              System.out.println("Error: Can't setup connection!"
-	    	                        + " Terminating client.");
-	    	              System.exit(1);
-	    	            }
-	    	            
-	    	            // Create scanner object to read from console
-	    	            fromConsole = new Scanner(System.in); 
-	    	        	
-	    	        	} else {
-
-	    	        		display("Cannot login  while already logged in!");
-	    	        		
-	    	        	}
-    	        	
-    	        } else if (commandName.equals("GETHOST")) {
-    	        	display("Command: Retrieving current client host...");
-    	            display("Currently on host: " + host);
-    	        	
-    	        } else if (commandName.equals("GETPORT")) {
-    	        	display("Command: Retrieving current client port...");
-    	            display("Currently on port: " + port);
-    	        	
-    	        } else {
-    	        	display("Unrecognized command.");
-    	        }
-    	        
-        	} else {
-        		client.handleMessageFromClientUI("> " + message);
-        	}
-        }
-
+        client.handleMessageFromClientUI(message);
       }
-        
-        
       
     } 
     catch (Exception ex) 
@@ -215,42 +94,7 @@ public class ClientConsole implements ChatIF
     }
   }
 
-  
-	/**
-	 * Tokenizes a command string into a list of arguments.
-	 * 
-	 * @param command the command string
-	 * @return a list of arguments
-	 */
-	private List<String> tokenize(String command) {
-		List<String> tokens = new ArrayList<>();
-		Pattern pattern = Pattern.compile("\"([^\"]*)\"|(\\S+)");
-		Matcher matcher = pattern.matcher(command);
 
-		while (matcher.find()) {
-			String token = matcher.group();
-			token = removeQuotes(token); // Remove quotes if they are added
-
-			tokens.add(token);
-		}
-
-		return tokens;
-	}
-	/**
-	 * Removes quotes from a string if they exist.
-	 * 
-	 * @param str the string to process
-	 * @return the string without quotes
-	 */
-	private String removeQuotes(String str) {
-		if (str == null || str.length() < 2) {
-			return str;
-		}
-		if (str.startsWith("\"") && str.endsWith("\"")) {
-			return str.substring(1, str.length() - 1);
-		}
-		return str;
-	}
   
   /**
    * This method overrides the method in the ChatIF interface.  It
